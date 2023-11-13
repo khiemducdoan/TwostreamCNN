@@ -33,6 +33,6 @@ for folder in os.listdir(parentFolder):
     for i in range(0,len(files),1):
         source_path = os.path.join(parentFolder,folder,files[i])
         destination_path = os.path.join(streamData,streamA,folder,files[i])
-        destination_path2 = os.path.join(streamData,streamB,folder,files[i+1])
+        destination_path2 = os.path.join(streamData,streamB,folder,files[i])
         shutil.copy(source_path, destination_path)
         shutil.copy(source_path, destination_path2)
