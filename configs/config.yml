@@ -1,0 +1,18 @@
+data:
+  batch_size: 256
+  num_workers: 0
+  image_size: 28
+
+path:
+  raw_path: asl_alphabet_train/asl_alphabet_train
+  blur_path: ./data/blur.csv
+  gaussian_path: ./data/gaussian.csv
+  random_transform_path: ./data/random_transform.csv
+  eval_path: ./data/eval.csv
+  ckpt_path: ./ckpt/best_epoch.pth
+  save_path: ./result
+
+train:
+  optimizer: Adam
+  epoch: 50
+  lr: 0.00001
