@@ -3,16 +3,15 @@ import pathlib
 import torch
 import PIL
 from PIL import Image
-from utils import get_class
 from torch.utils.data import Dataset
-
+from utils import utils
 
 class ASLDataset(Dataset):
     def __init__(self, 
                  data_path,
-                 transform):
+                 transform = None):
         self.img_path = list(pathlib.Path(data_path).glob('*/*.jpg'))
-        self.class_name,self.class_to_idx = utils.get_class(data_dir)
+        self.class_name,self.class_to_idx = utils.get_class(data_path)
         
     def load_image(self,
                    index):

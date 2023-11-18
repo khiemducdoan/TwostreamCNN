@@ -1,73 +1,25 @@
-# Imports needed
-import os
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.layers import Flatten, Dense
-from tensorflow.keras.applications import ResNet50
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from runners.runner import TwoStreamCNNrunner
+from tensorboardX import SummaryWriter
+import yaml
 
-img_height = 200
-img_width = 200
-batch_size = 32
+from utils.utils import dict_to_namespace
 
-# Define your custom CNN block
 
-model = keras.Sequential([
-    layers.Input((img_height, img_width, 3)),
-    layers.Conv2D(16, 3, padding="same"),
-    layers.Conv2D(32, 3, padding="same"),
-    Flatten(),
-    Dense(512, activation='relu'),
-    Dense(29, activation='softmax'),
-])
+def main():
+    log_dir = './logs'
+    logger = SummaryWriter(log_dir)
 
-# ImageDataGenerator and flow_from_directory
-datagen = ImageDataGenerator(
-    rescale=1.0 / 255,
-    rotation_range=5,
-    horizontal_flip=True,
-    vertical_flip=True,
-    data_format="channels_last",
-    validation_split=0.2,
-    dtype= 'float32'
-)
+    config_path = './configs/config.yml'
 
-train_generator = datagen.flow_from_directory(
-    "asl_alphabet_train\\asl_alphabet_train",
-    target_size=(img_height, img_width),
-    batch_size=batch_size,
-    color_mode="rgb",  # Change to "rgb" for color images
-    class_mode="sparse",
-    shuffle=True,
-    subset="training",
-    seed=123,
-)
+    with open(config_path, 'r') as file:
+        config = yaml.safe_load(file)
 
-validation_generator = datagen.flow_from_directory(
-    "asl_alphabet_train\\asl_alphabet_train",
-    target_size=(img_height, img_width),
-    batch_size=batch_size,
-    color_mode="rgb",  # Change to "rgb" for color images
-    class_mode="sparse",
-    shuffle=True,
-    subset="validation",
-    seed=123,
-)
+    config = dict_to_namespace(config)  # Convert dictionary to Namespace object
 
-# Redo model.compile to reset the optimizer states
-model.compile(
-    optimizer=keras.optimizers.Adam(),
-    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    metrics=["accuracy"],
-)
+    runner = TwoStreamCNNrunner(config = config, logger = logger)
+    runner.train()
+    runner.test()
 
-# using model.fit (note steps_per_epoch)
-model.fit(
-    train_generator,
-    epochs=10,
-    steps_per_epoch=len(train_generator),
-    verbose=2,
-    validation_data=validation_generator,
-    validation_steps=len(validation_generator)
-)
+
+if __name__ == "__main__":
+    main()
