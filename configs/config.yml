@@ -4,9 +4,11 @@ data:
   image_size: 200
 
 path:
-  raw_path: asl_alphabet_train\\asl_alphabet_train
+  train_path: asl_alphabet_train\\asl_alphabet_train
+  test_path : asl_alphabet_test\\asl_alphabet_test
 
 train:
+  epoch: 30
   optimizer: Adam
   epoch: 50
   lr: 0.00001
