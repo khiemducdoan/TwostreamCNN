@@ -3,6 +3,7 @@ from model.TwoStreamCNN import TwoStreamCNN
 import torch
 from torch import nn
 import numpy as np
+from sklearn.model_selection import train_test_split
 from torch.optim import Adam
 from torchvision import datasets
 from torchvision import transforms
@@ -18,36 +19,36 @@ class TwoStreamCNNrunner():
         self.image_size = config.data.image_size 
         
         
-        self.data_path = config.path.raw_path
-        
+        self.train_path = str(config.path.train_path)
+        self.test_path = str(config.path.test_path)
+        self.lr = config.train.lr
         
         self.epoch = config.train.epoch
         self.criteria = nn.CrossEntropyLoss()
+        self._model = TwoStreamCNN(type = "tsma")
         self.optimizer = self._get_optim(config.train.optimizer)
-        self.lr = config.train.lr
         
         
         self.transform = transform
-        self.model = TwoStreamCNN(type = "tsma")
         self.train_loader, self.test_loader = self._init_data(0.2)
         
         
     def train(self):
         print('Start training on device {}'.format(device))
-        self.model = self.model.to(device)
+        self._model = self._model.to(device)
         best_val_loss = 1e9
 
         for epoch in range(self.epoch):
             print('Start epoch {}'.format(epoch))
 
         # set up model state to training
-            self.model.train()
+            self._model.train()
 
             for (x, y) in self.train_loader:
                 x = x.to(device=device, dtype=torch.float32)
                 y = y.to(device=device, dtype=torch.float32)
 
-                y_pred = self.model(x)
+                y_pred = self._model(x)
 
                 loss = self.criterion(y_pred, y)
                 loss.backward()  # calculate gradient
@@ -69,14 +70,14 @@ class TwoStreamCNNrunner():
                 x = x.to(device=device, dtype=torch.float32)
                 y = y.to(device=device, dtype=torch.float32)
 
-                y_pred = self.model(x)
+                y_pred = self._model(x)
                 loss = self.criterion(y_pred, y)
                 avg_loss += loss
 
                 avg_acc += torch.sum(torch.argmax(y_pred, dim=1) == torch.argmax(y, dim=1)) / y.shape[0]
 
-            avg_loss /= len(self.val_loader)
-            avg_acc /= len(self.val_loader)
+            avg_loss /= len(self.test_loader)
+            avg_acc /= len(self.test_loader)
 
             self.logger.add_scalar('val_loss', avg_loss, global_step=epoch)
             self.logger.add_scalar('accuracy', avg_acc, global_step=epoch)
@@ -95,7 +96,7 @@ class TwoStreamCNNrunner():
     
     def test(self):
         print('Start testing on device {}'.format(device))
-        self.model.eval()
+        self._model.eval()
 
         pred_labels = []
 
@@ -103,7 +104,7 @@ class TwoStreamCNNrunner():
             for x in self.test_loader:
                 x = x.to(device=device, dtype=torch.float32)
 
-                y_pred = self.model(x)
+                y_pred = self._model(x)
                 pred_labels.append(torch.argmax(y_pred, dim=1).numpy())
 
         save_data = np.concatenate(pred_labels, axis=None)
@@ -116,21 +117,16 @@ class TwoStreamCNNrunner():
     
     
     def _init_data(self,validation_split):
-        data = ASLDataset(data_path= str(self.data_path), transform=self.transform)
-        indices = int(np.floor((1-validation_split) * dataset_size)) 
-        train_data = data[:indices]
-        test_data = data[indices:] 
+        train_data = ASLDataset(data_path= str(self.train_path), transform=self.transform)
+        test_data = ASLDataset(data_path= str(self.test_path), transform=self.transform)
         train_loader = DataLoader(dataset = train_data,batch_size= self.batch_size)
-        test_loader  = DataLoader(dataset= test_data,batch_size= self.batch_size)
+        test_loader  = DataLoader(dataset=test_data,batch_size= self.batch_size)
         return train_loader, test_loader
         
         
     def _get_optim(self,optim):
         if str(optim) == "Adam":
-            return Adam(
-                self.model.parameters(),
-                lr=self.lr,
-            )
+            return Adam(self._model.parameters(),lr=self.lr,)
         return None
         
         

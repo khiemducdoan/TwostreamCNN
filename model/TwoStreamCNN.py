@@ -7,7 +7,7 @@ class TwoStreamCNN(nn.Module):
         super().__init__()
         self.conv = nn.Conv2d(226, 64, (3, 3))
         self.type = type
-        self.block = models.resnet50(pretrained=True)  # Use ResNet-50 as the block
+        self.blockend = self.block()  # Use ResNet-50 as the block
 
     def forward(self, streamA, streamB):
         ht = nn.LeakyReLU()(self.conv(streamA))
@@ -21,5 +21,13 @@ class TwoStreamCNN(nn.Module):
         elif self.type == 'tsmab':
             y = torch.cat((z, ht/2, ht1/2), dim=1)
 
-        yhat = self.block(y)
+        yhat = self.blockend(y)
         return yhat
+    
+    def block(self):
+        resnet50 = models.resnet50(pretrained=True)
+        for param in resnet50.parameters():
+            param.requires_grad = False
+        fc_inputs = resnet50.fc.in_features
+        resnet50.fc = nn.Linear(512,29)
+        return resnet50

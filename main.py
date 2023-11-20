@@ -4,16 +4,15 @@ import yaml
 
 from utils.utils import dict_to_namespace
 from torchvision import transforms
-from torchvision.transforms import v2 
 
 def main():
-    transforms = v2.Compose([
-        v2.RandomResizedCrop(size=(224, 224), antialias=True),
-        v2.RandomHorizontalFlip(p=0.5),
-        v2.ToDtype(torch.float32, scale=True),
-        v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-])
-    log_dir = './logs'
+    transform = transforms.Compose({
+        transforms.PILToTensor(),
+        transforms.Resize((224, 224)),
+        transforms.ToDtype(torch.float32, scale=True),
+        transforms.Normalize(mean=(0, 0, 0), std=(1, 1, 1)),
+        })
+    log_dir = './logs'    
     logger = SummaryWriter(log_dir)
 
     config_path = './configs/config.yml'
@@ -23,7 +22,7 @@ def main():
 
     config = dict_to_namespace(config)  # Convert dictionary to Namespace object
 
-    runner = TwoStreamCNNrunner(config = config, logger = logger,transform= transforms)
+    runner = TwoStreamCNNrunner(config = config, logger = logger,transform= transform)
     runner.train()
     runner.test()
 
