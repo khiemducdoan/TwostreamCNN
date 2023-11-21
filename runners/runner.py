@@ -66,7 +66,6 @@ class TwoStreamCNNrunner():
             avg_loss = 0
             avg_acc = 0
             for (x, y) in self.val_loader:
-                x = x.permute((0, 3, 1, 2))
                 x = x.to(device=device, dtype=torch.float32)
                 y = y.to(device=device, dtype=torch.float32)
 
