@@ -5,7 +5,7 @@ import torchvision.models as models
 class TwoStreamCNN(nn.Module):
     def __init__(self, type='tsma'):
         super().__init__()
-        self.conv = nn.Conv2d(226, 64, (3, 3))
+        self.conv = nn.LazyConv2d(64,kernel_size = (3,3))
         self.type = type
         self.blockend = self.block()  # Use ResNet-50 as the block
 

@@ -8,7 +8,7 @@ from torchvision.transforms import v2
 def main():
     transform = v2.Compose([
         v2.ToImage(),
-        v2.RandomResizedCrop(size=(224, 224), antialias=True),
+        v2.RandomResizedCrop(size=(226, 226), antialias=True),
         v2.RandomHorizontalFlip(p=0.5),
         v2.ToDtype(torch.float32, scale=True),
     ])
