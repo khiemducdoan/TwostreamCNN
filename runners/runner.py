@@ -44,11 +44,13 @@ class TwoStreamCNNrunner():
         # set up model state to training
             self._model.train()
 
-            for (x, y) in self.train_loader:
-                x = x.to(device=device, dtype=torch.float32)
-                y = y.to(device=device, dtype=torch.float32)
-
-                y_pred = self._model(x)
+            for (xA, yA) in self.train_loader:
+                xA = xA.to(device=device, dtype=torch.float32)
+                yA = yA.to(device=device, dtype=torch.float32)
+                (xB,yB) = next(iter(self.train_loader))
+                xB = xB.to(device=device, dtype=torch.float32)
+                yB = yB.to(device=device, dtype=torch.float32)
+                y_pred = self._model(xA,xB)
 
                 loss = self.criterion(y_pred, y)
                 loss.backward()  # calculate gradient
@@ -69,7 +71,7 @@ class TwoStreamCNNrunner():
                 x = x.to(device=device, dtype=torch.float32)
                 y = y.to(device=device, dtype=torch.float32)
 
-                y_pred = self._model(x)
+                y_pred = self._model(x,x.next())
                 loss = self.criterion(y_pred, y)
                 avg_loss += loss
 
