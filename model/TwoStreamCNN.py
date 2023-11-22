@@ -25,9 +25,17 @@ class TwoStreamCNN(nn.Module):
         return yhat
     
     def block(self):
+        # Assuming the output size of y is (batch_size, channels, height, width)
+        y_size = (None, 128, 224, 224)
+        
+        # Resize the ResNet block to accept the size of y
         resnet50 = models.resnet50(pretrained=True)
+        resnet50.conv1 = nn.Conv2d(128, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        # Adapt other layers accordingly based on the size of y
+
         for param in resnet50.parameters():
             param.requires_grad = False
+
         fc_inputs = resnet50.fc.in_features
-        resnet50.fc = nn.Linear(512,29)
+        resnet50.fc = nn.Linear(fc_inputs, 29)
         return resnet50

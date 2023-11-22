@@ -24,7 +24,7 @@ class TwoStreamCNNrunner():
         self.lr = config.train.lr
         
         self.epoch = config.train.epoch
-        self.criteria = nn.CrossEntropyLoss()
+        self.criterion = nn.CrossEntropyLoss()
         self._model = TwoStreamCNN(type = "tsma")
         self.optimizer = self._get_optim(config.train.optimizer)
         
@@ -45,21 +45,19 @@ class TwoStreamCNNrunner():
             self._model.train()
 
             for (xA, yA) in self.train_loader:
-                xA = xA.to(device=device, dtype=torch.float32)
-                yA = yA.to(device=device, dtype=torch.float32)
+                xA = xA.to(device=device)
+                yA = yA.to(device=device)
                 (xB,yB) = next(iter(self.train_loader))
-                xB = xB.to(device=device, dtype=torch.float32)
-                yB = yB.to(device=device, dtype=torch.float32)
+                xB = xB.to(device=device)
+                yB = yB.to(device=device)
                 y_pred = self._model(xA,xB)
 
-                loss = self.criterion(y_pred, y)
+                loss = self.criterion(y_pred, yA)
                 loss.backward()  # calculate gradient
                 self.optimizer.step()  # update model parameters by gradient
                 self.optimizer.zero_grad()  # set gradient to zero for next loop
-                self.global_step += 1
 
-                # need to detach loss from calculating tree of pytorch
-                self.logger.add_scalar('train_loss', loss, global_step=self.global_step)
+
 
         # set up model state to evaluating
         self.model.eval()
