@@ -25,12 +25,21 @@ class TwoStreamCNNrunner():
         
         self.epoch = config.train.epoch
         self.criterion = nn.CrossEntropyLoss()
-        self._model = TwoStreamCNN(type = "tsma")
+        self._model = TwoStreamCNN(29,type = "tsma")
         self.optimizer = self._get_optim(config.train.optimizer)
         
         
         self.transform = transform
-        self.train_loader, self.test_loader = self._init_data(0.2)
+        self.train_loader = None
+        self.test_loader = None
+        self._init_data(0.2)
+        
+        # load checkpoint
+        if 'ckpt_path' in config.path:
+            if config.path.ckpt_path is not None:
+                last_state = torch.load(config.path.ckpt_path)
+                self.global_step = last_state['last_step']
+                self.model.load_state_dict(last_state['last_model'])
         
         
     def train(self):
@@ -46,10 +55,10 @@ class TwoStreamCNNrunner():
 
             for (xA, yA) in self.train_loader:
                 xA = xA.to(device=device)
-                yA = yA.to(device=device)
-                (xB,yB) = next(iter(self.train_loader))
+                xB,yB = next(iter(self.train_loader))
+
                 xB = xB.to(device=device)
-                yB = yB.to(device=device)
+                yA = yA.to(device=device)
                 y_pred = self._model(xA,xB)
 
                 loss = self.criterion(y_pred, yA)
@@ -116,11 +125,15 @@ class TwoStreamCNNrunner():
     
     
     def _init_data(self,validation_split):
-        train_data = ASLDataset(data_path= str(self.train_path), transform=self.transform)
-        test_data = ASLDataset(data_path= str(self.test_path), transform=self.transform)
-        train_loader = DataLoader(dataset = train_data,batch_size= self.batch_size)
-        test_loader  = DataLoader(dataset=test_data,batch_size= self.batch_size)
-        return train_loader, test_loader
+        train_data = ASLDataset(data_path= (self.train_path), transform=self.transform)
+        test_data = ASLDataset(data_path= (self.test_path), transform=self.transform)
+        self.train_loader = DataLoader(dataset = train_data,
+                                  batch_size= self.batch_size,
+                                  num_workers= self.num_workers
+                                  )
+        self.test_loader  = DataLoader(dataset=test_data,
+                                  batch_size= self.batch_size,
+                                  num_workers= self.num_workers)
         
         
     def _get_optim(self,optim):
