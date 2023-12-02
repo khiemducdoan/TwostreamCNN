@@ -10,6 +10,7 @@ class ASLDataset(Dataset):
     def __init__(self, 
                  data_path,
                  transform = None):
+        self.transform = transform
         self.img_path = list(pathlib.Path(data_path).glob('*/*.jpg'))
         self.class_name,self.class_to_idx = utils.get_class(data_path)
         
@@ -21,7 +22,7 @@ class ASLDataset(Dataset):
     def __getitem__(self,
                     idx):
         img = self.load_image(idx)
-        class_name = self.img_path[idx].parents.name
+        class_name = self.img_path[idx].parent.name
         class_name_idx = self.class_to_idx[class_name]
         if self.transform:
             return self.transform(img),class_name_idx
@@ -29,5 +30,5 @@ class ASLDataset(Dataset):
             return img, class_name_idx
     
     def __len__(self):
-        len(self.img_path) 
+        return len(self.img_path) 
         

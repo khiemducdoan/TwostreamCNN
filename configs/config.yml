@@ -1,14 +1,16 @@
 data:
   batch_size: 1
-  num_workers: 0
+  num_workers: 1
   image_size: 200
 
 path:
-  train_path: asl_alphabet_train\\asl_alphabet_train
-  test_path : asl_alphabet_test\\asl_alphabet_test
+  train_path: asl_alphabet_train//asl_alphabet_train
+  test_path: asl_alphabet_train//asl_alphabet_train
+  eval_path: .\data\eval.csv
+  #ckpt_path: .\ckpt\best_epoch.pth
+  save_path: .\result
 
 train:
-  epoch: 30
   optimizer: Adam
-  epoch: 50
+  epoch: 3
   lr: 0.00001
