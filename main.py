@@ -24,7 +24,6 @@ def main():
 
     runner = TwoStreamCNNrunner(config = config, logger = logger,transform= transform)
     runner.train()
-    runner.test()
 
 
 if __name__ == "__main__":

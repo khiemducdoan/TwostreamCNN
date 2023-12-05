@@ -23,7 +23,7 @@ class TwoStreamCNNrunner():
         
         self.epoch = config.train.epoch
         self.criterion = nn.CrossEntropyLoss()
-        self._model = TwoStreamCNN(29,type = "tsma")
+        self.model = TwoStreamCNN(29,type = "tsma")
         self.optimizer = self._get_optim(config.train.optimizer)
         
         
@@ -43,7 +43,6 @@ class TwoStreamCNNrunner():
     def _init_data(self):
         train_data = ASLDataset(data_path= (self.train_path), transform=self.transform)
         test_data = ASLDataset(data_path= (self.test_path), transform=self.transform)
-        val_data = ASLDataset(data_path = self.val_loader,transform=self.transform)
         self.train_loader = DataLoader(dataset = train_data,
                                   batch_size= self.batch_size,
                                   num_workers= self.num_workers
@@ -51,14 +50,10 @@ class TwoStreamCNNrunner():
         self.test_loader  = DataLoader(dataset=test_data,
                                   batch_size= self.batch_size,
                                   num_workers= self.num_workers)
-        self.val_loader = DataLoader(dataset=val_data,
-                                     batch_size = self.batch_size,
-                                     num_workers = self.num_workers)
-        
         
     def _get_optim(self,optim):
         if str(optim) == "Adam":
-            return Adam(self._model.parameters(),lr=self.lr,)
+            return Adam(self.model.parameters(),lr=self.lr,)
         return None
     def train(self):
         print('Start training on device {}'.format(device))
