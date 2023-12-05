@@ -22,12 +22,16 @@ class ASLDataset(Dataset):
     def __getitem__(self,
                     idx):
         img = self.load_image(idx)
+        if idx+1 >= len(self.img_path):
+            img2 = self.load_image(idx)
+        else:
+            img2 = self.load_image(idx+1)
         class_name = self.img_path[idx].parent.name
         class_name_idx = self.class_to_idx[class_name]
         if self.transform:
-            return self.transform(img),class_name_idx
+            return self.transform(img),self.transform(img2),class_name_idx
         else: 
-            return img, class_name_idx
+            return img,img2, class_name_idx
     
     def __len__(self):
         return len(self.img_path) 
