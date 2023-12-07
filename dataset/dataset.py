@@ -9,9 +9,10 @@ from utils import utils
 class ASLDataset(Dataset):
     def __init__(self, 
                  data_path,
+                 range_index,
                  transform = None):
         self.transform = transform
-        self.img_path = list(pathlib.Path(data_path).glob('*/*.jpg'))
+        self.img_path = utils.get_data_list(data_path,range_index)
         self.class_name,self.class_to_idx = utils.get_class(data_path)
         
     def load_image(self,

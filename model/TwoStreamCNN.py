@@ -128,7 +128,7 @@ class TwoStreamCNN(nn.Module):
         self.num_classes = num_classes
         self.conv1 = nn.Conv2d(3,64, kernel_size=3)
         self.batch_norm1 = nn.BatchNorm2d(64)
-        self.relu = nn.ReLU()
+        self.relu = nn.LeakyReLU()
         self.type = type
         self.blockend = ResNet(Bottleneck, [3,4,6,3], num_classes, 128)
 
