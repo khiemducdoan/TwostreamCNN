@@ -1,4 +1,4 @@
-from runners.runner import TwoStreamCNNrunner
+from runners.runner import runner
 from tensorboardX import SummaryWriter
 import yaml
 import torch 
@@ -22,7 +22,7 @@ def main():
 
     config = dict_to_namespace(config)  # Convert dictionary to Namespace object
 
-    runner = TwoStreamCNNrunner(config = config, logger = logger,transform= transform)
+    runner = runner(config = config, logger = logger,transform= transform)
     runner.train()
 
 

@@ -11,6 +11,7 @@ path:
   save_path: .\result
 
 train:
+  num_output: 29
   optimizer: Adam
   epoch: 3
   lr: 0.00001
