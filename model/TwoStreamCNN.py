@@ -121,20 +121,26 @@ class ResNet(nn.Module):
             layers.append(ResBlock(self.in_channels, planes))
             
         return nn.Sequential(*layers)
-
+    
+class Convolution(nn.Module):
+    def __init__(self):
+        self.conv = nn.Conv2d(3,64, kernel_size=3,bias = False)
+        self.batch_norm = nn.BatchNorm2d(64)
+        self.relu = nn.LeakyRelU()
+    def forward(self,x):
+        return self.relu(self.batch_norm(self.conv1(x))) 
+    
 class TwoStreamCNN(nn.Module):
     def __init__(self,num_classes,type='tsma'):
         super().__init__()
-        self.num_classes = num_classes
-        self.conv1 = nn.Conv2d(3,64, kernel_size=3)
-        self.batch_norm1 = nn.BatchNorm2d(64)
-        self.relu = nn.LeakyReLU()
+        self.conv1 = Convolution()
+        self.conv2 = Convolution()
         self.type = type
         self.blockend = ResNet(Bottleneck, [3,4,6,3], num_classes, 128)
 
     def forward(self, streamA, streamB):
-        ht = self.relu(self.batch_norm1(self.conv1(streamA)))
-        ht1 = self.relu(self.batch_norm1(self.conv1(streamB)))
+        ht = self.conv1(streamA)
+        ht1 = self.conv2(streamB)
         z = torch.add(ht, ht1)
 
         if self.type == 'tsma':
