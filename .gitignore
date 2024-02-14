@@ -12,3 +12,10 @@ asl_alphabet_train
 asl-alphabet.zip
 
 __pycache__
+
+archive.zip
+
+*\.csv
+*\.ipynb
+
+*\.sarif

@@ -23,7 +23,7 @@ class ASLDataset(Dataset):
     def __getitem__(self,
                     idx):
         img = self.load_image(idx)
-        if idx+1 >= len(self.img_path):
+        if (idx+1)  >= len(self.img_path):
             img2 = self.load_image(idx)
         else:
             img2 = self.load_image(idx+1)
